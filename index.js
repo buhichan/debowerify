@@ -65,12 +65,21 @@ module.exports = function (file, options) {
    */
   function getModule (name, parent) {
     parent = parent || bowerModules;
+    var overrides = bowerModules.pkgMeta.overrides;
     var dependencies = getModuleDependencies(parent);
     for (var dependencyName in dependencies) {
-      var module = dependencies[name] || getModule(name, dependencies[dependencyName]);
-      if (module) return module;
+      if(dependencies.hasOwnProperty(dependencyName)) {
+        var module = dependencies[name] || getModule(name, dependencies[dependencyName]);
+      }
+      if (module) {
+        if (overrides.hasOwnProperty(name)){
+          var _ = require('lodash');
+          module.pkgMeta = _.extend(module.pkgMeta,overrides[name]);
+        }
+        return module
+      }
     }
-  };
+  }
 
   /**
    * @param {Object} Browserify options object containing possible 'bowerOptions'
